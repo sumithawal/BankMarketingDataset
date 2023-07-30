@@ -1,0 +1,257 @@
+---
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(ggthemes)
+library(tidyverse)
+library(gridExtra)
+library(readxl)
+library(ggcorrplot)
+# Change according to your file location, use backslash 
+bank <- 'C:\\Users\\smeet\\Desktop\\bankmarketing\\data\\bank-full.csv'
+bank <-  read_csv2(bank)
+bank <- na.omit(bank)
+
+  
+
+
+bank <- bank %>%
+  mutate(month = factor(month, levels = c("jan","feb","mar","apr","may",'jun','jul','aug','sep','oct','nov','dec')))
+```
+
+```{r }
+# Far more people did not subscribe to term deposit than they did.
+# Class of Outcomes 
+ggplot(data=bank,mapping= aes(x=y,fill=y)) + 
+  geom_bar()+ labs(x='Subscribed',fill='Subscribed',y='Number of Subscription',
+  title='Count of terms deposited or not')+ scale_fill_brewer(palette = 'Set2')
+  
+```
+```{r}
+# Technicians and management tend to subscribe more as compared to entrepreneurs and 
+# house-maids.
+ggplot(data=bank,mapping= aes(x = job,fill=y)) + 
+  geom_bar()+ 
+  labs(title="Outcome of contact to user based on job type",fill='Subscribed',y='Number of contacts',x='Job Type')+
+  theme(axis.text.x = element_text(size=8,angle = 45,hjust=1.0))+
+  scale_fill_brewer(palette = 'Set2')+ theme(plot.title = element_text(hjust = 0.5))
+  
+```
+```{r}
+# Singles tend to subscribe more to term deposit compared to married and divorced.
+
+
+# Deposit by Marital-type
+ggplot(data=bank,mapping= aes(x=marital,fill=y)) + 
+  geom_bar(position='dodge')+ 
+  labs(x ='Marital Status',y='Number of Contacts',fill='Subscribed',title='Subscription by marital status')+
+  theme(axis.text.x = element_text(hjust=1.0))+
+    scale_fill_brewer(palette = 'Set2')+ theme(plot.title = element_text(hjust = 0.5))
+  
+```
+
+
+```{r}
+# March,April and September,October got more term deposit success compared to rejection
+
+# Deposit based on month 
+ggplot(bank,aes(x=y,fill=month)) +
+  geom_bar(position='fill') + 
+  labs(title= 'Subscription to term deposit by months',y='Proportion',x='Subscribed',fill='Months')+
+   theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+```{r}
+# Longer Call duration can be associated with Subscription
+# Deposit based on duration 
+ggplot(bank, aes(duration, fill = y)) + 
+  geom_density(alpha = 0.5)+ labs(x='Total duration of calls (Minutes)',y='Density',fill='Subscribed',
+                                  title= 'Duration of calls v/s outcome')+
+    scale_fill_brewer(palette = 'Set2')+ theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+```{r}
+# Average duration of calls by month
+ggplot(data =bank,
+       mapping = aes(x= month,
+                     y= duration,color=y)) + 
+  geom_point(stat='summary',fun=mean) +
+  labs(color='Subscribed',x= 'Month',y=' Average Duration (Minutes)',
+       title='Average call time per month')+
+     scale_fill_brewer(palette = 'Set2')+ theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+ggplot(data =bank,
+       mapping = aes(x= month,
+                     y= campaign,color=y)) + 
+  geom_point(stat='summary',fun=mean) +
+  labs(color='Subscribed',x= 'Month',y='Avergae Contacts',
+       title='Average contacts per person per month')+
+    scale_fill_brewer(palette = 'Set2')+ theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+
+# Age of different job types 
+ggplot(bank,aes(x= job,y= age,color=y))+ geom_boxplot()+
+  labs(title='Range of age of different job types',x='Job Type',y='Age (Years)',color='Subscribed')+
+  theme(axis.text.x = element_text(size=10,angle =30,hjust=1.0))+
+    scale_fill_brewer(palette = 'Set2')+ theme(plot.title = element_text(hjust = 0.5))
+ 
+```
+
+```{r}
+
+# deposit based on month 
+ggplot(bank ,  aes(x=y,fill=education))+ geom_bar(position='fill')+
+  theme(axis.text.x = element_text(size=10,angle =30,hjust=1.0))+ labs(y='Proportion',
+                                                                       x = 'Subscribed',
+                                                                       title='Subscription based on level of education')+
+    scale_fill_brewer(palette = 'Set2')+ theme(plot.title = element_text(hjust = 0.5))
+
+bank
+```
+
+
+```{r}
+# deposit based on age
+ggplot(bank,aes(x=y,y=age)) + geom_boxplot() + labs(x='Subscribed',y='Age',
+                                                    title='Subsciption based on Age')+
+  scale_fill_brewer(palette = 'Set2')+ theme(plot.title = element_text(hjust = 0.5))
+```
+```{r}
+# Deposit based on age
+ggplot(bank,aes(age,fill=y))+ labs(fill='Subscribed',title='Age v/s Subscription')+ geom_density(alpha=0.5)+scale_fill_brewer(palette = 'Set2')+ theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+
+# Subscription and age 
+ggplot(bank, aes(balance,fill=y)) + labs(fill='Subscribed',title='Subscription based on balance')+ geom_density(alpha=0.5)+
+  scale_fill_brewer(palette = 'Set2')+ theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+# Balance of different types of jobs 
+ggplot(bank,aes(x=job,y=balance,color=y))+ geom_boxplot()+
+  scale_fill_brewer(palette = 'Set2')+ theme(plot.title = element_text(hjust = 0.5),
+                                             axis.text.x = 
+                                               element_text(angle=45,hjust=1.0))+ labs(title='Balance amount of jobs of different jobs',x='Job-Type',y='Balance Amount'
+       ,color='Deposit')
+
+```
+```{r}
+# how age changes with balance
+ggplot(data=bank,
+       mapping=aes(x=age,
+                   y=balance,
+                   color=y))+
+  geom_point()+
+  labs(x='Age',y='Total Balance',title= 'Balance v/s Age',color= 'Subscribed')+
+  scale_fill_brewer(palette = 'Set2')+ theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+# Count of contacts per month during this campaign by month
+ggplot(data=bank,
+       mapping=aes(x=month,
+                   y=campaign,
+                   color=y))+
+  geom_boxplot()+labs(title='Contacts per month',color='Subscribed')+
+  scale_fill_brewer(palette = 'Set2')+ theme(plot.title = element_text(hjust = 0.5))
+
+
+```
+
+```{r}
+# call duration per month boxplot 
+ggplot(data=bank,
+       mapping=aes(x=month,
+                   y=duration,color=y))+
+  geom_boxplot() + theme_dark() + labs(title='Call duration per month',y='Total call duration',x='Month',color='Subscribed')+
+  scale_fill_brewer(palette = 'Set2')+ theme(plot.title = element_text(hjust = 0.5))
+
+
+```
+
+
+
+```{r}
+bank_yes <-  bank[bank$y=='yes',]
+
+bank_no <- bank[bank$y=='no',]
+
+
+education_yes <- bank_yes %>%
+  count(education, sort = TRUE) %>%
+  mutate(edcuation = reorder(education, n)) %>%
+  ggplot(aes(x="", y= n,fill=education)) +
+  geom_bar(stat="identity") + 
+  geom_text(aes(label = education,angle=45),
+            position = position_stack(vjust = 0.3),
+            show.legend = FALSE)+
+  coord_polar("y",start=0)+ labs(title='Subscribed (yes)',fill='Education')+
+  scale_fill_brewer(palette = 'Set2')+ theme(plot.title = element_text(hjust = 0.5))
+
+education_no <- bank_no %>%
+  count(education, sort = TRUE) %>%
+  mutate(edcuation = reorder(education, n)) %>%
+  ggplot(aes(x="", y= n,fill=education)) +
+  geom_bar(stat="identity") + 
+  geom_text(aes(label = education,angle=45),
+            position = position_stack(vjust = 0.3),
+            show.legend = FALSE)+
+  coord_polar("y",start=0)+ labs(title='Not Subscribed (no)')+
+  theme(legend.position = 'none')+
+  scale_fill_brewer(palette = 'Set2')+ theme(plot.title = element_text(hjust = 0.5))
+  
+
+
+grid.arrange(education_no,education_yes, ncol= 2)
+```
+
+
+```{r}
+
+month_yes <- bank_yes %>%
+  count(month, sort = TRUE) %>%
+  mutate(month = reorder(month, n)) %>%
+  ggplot(aes(x="", y= n,fill=month)) +
+  geom_bar(stat="identity") + 
+  geom_text(aes(label = month,angle=90),
+            position = position_stack(vjust = 0.3),
+            show.legend = FALSE)+
+  coord_polar("y",start=0)+ labs(title='Subscribed("yes")',fill='Education',x='',y='')+ theme(plot.title = element_text(hjust = 0.5))
+  
+
+month_no <- bank_no %>%
+  count(month, sort = TRUE) %>%
+  mutate(month = reorder(month, n)) %>%
+  ggplot(aes(x="", y= n,fill=month)) +
+  geom_bar(stat="identity") + 
+  geom_text(aes(label = month,angle=90),
+            position = position_stack(vjust = 0.3),
+            show.legend = FALSE)+
+  coord_polar("y",start=0)+ labs(title='Not Subscribed("no")',x='',y='')+
+  theme(legend.position = 'none')+ theme(plot.title = element_text(hjust = 0.5))
+  
+
+grid.arrange(month_no,month_yes, ncol= 2)
+```
+```{r}
+
+```
